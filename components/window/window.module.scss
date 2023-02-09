@@ -6,8 +6,8 @@ $border-color: rgb(0, 170, 0);
     position: relative;
     margin: 0 auto;
 
-    height: 400px;
-    width: 800px;
+    height: 60vh;
+    width: 80vw;
 
     border-width: 4px;
     border: double 1px $border-color;
@@ -17,10 +17,10 @@ $border-color: rgb(0, 170, 0);
         pointer-events: none;
         display: block;
         position: absolute;
-        top: 4px;
-        left: 4px;
-        right: 4px;
-        bottom: 4px;
+        top: 2px;
+        left: 2px;
+        right: 2px;
+        bottom: 2px;
         background: none;
         border: 1px solid $border-color;
     }

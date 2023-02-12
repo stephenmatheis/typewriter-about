@@ -1,12 +1,16 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
 import Type from '@/components/type/type';
 import styles from './header.module.scss';
 
-export default function Header({ loading, setLoading, speed }) {
+export default function Header({ loading, setLoading, speed, showLinkBackground }) {
+    // State
+    const [isBlinking, setIsBlinking] = useState(true);
+    const [transitionBackgroundColor, setTransitionBackgroundColor] = useState(false);
+
     // Modifiers
-    const titleMod = 0;
+    const titleMod = 12.5;
 
     // Name and Title
     const firstName = 'Stephen';
@@ -34,10 +38,22 @@ export default function Header({ loading, setLoading, speed }) {
     const toEngineer = useRef();
 
     useEffect(() => {
+        setTimeout(() => {
+            setIsBlinking(false);
+        }, 1000 * 3);
+    }, [isBlinking]);
+
+    useEffect(() => {
+        if (isBlinking) {
+            return;
+        }
+
         setTimeout(async () => {
             if (!overlay.current || !ctr.current) {
                 return;
             }
+
+            setTransitionBackgroundColor(true);
 
             // Set ctr height
             const { height, width } = ctr.current.getBoundingClientRect();
@@ -46,7 +62,7 @@ export default function Header({ loading, setLoading, speed }) {
             ctr.current.style.width = `${width}px`;
 
             // Animate name and title
-            const duration = speed * 5;
+            const duration = speed * 7;
 
             await Promise.all([
                 anim(fromFirstName, toFirstName, duration),
@@ -58,7 +74,7 @@ export default function Header({ loading, setLoading, speed }) {
 
             // Loading is complete after animation
             setLoading(false);
-        }, (delayAfter(firstName + lastName, speed) + delayAfter(frontEnd + software + engineer, speed)));
+        }, (delayAfter(firstName + lastName, speed) + delayAfter(frontEnd + software + engineer, speed, titleMod * 1.5)));
 
         async function anim(from, to, duration) {
             const fromName = from.current
@@ -98,37 +114,54 @@ export default function Header({ loading, setLoading, speed }) {
                 return 'done';
             }
         }
-    }, [loading, setLoading, speed]);
+    }, [isBlinking, loading, setLoading, speed]);
 
     return (
         <header className={styles['header']}>
             <Link href="/" aria-label="Stephen Matheis' personal website">
-                <div className={classNames(styles['profile'], { [styles['loading']]: loading })}>
+                <div className={classNames(styles['profile'], { [styles['loading']]: loading, [styles['link-background']]: showLinkBackground })}>
                     <span ref={toFirstName} className={styles['name']}>Stephen</span>
-                    <span className='space'> </span>
+                    <span className={styles['name']}> </span>
                     <span ref={toLastName} className={styles['name']}>Matheis</span>
-                    <span className='space'> </span>
+                    <span className={styles['name']}> </span>
                     <span className={styles['nowrap']}>
                         <span ref={toFrontEnd} className={styles['title']}>Front-end</span>
-                        <span className='space'> </span>
+                        <span className={styles['title']}> </span>
                         <span ref={toSoftware} className={styles['title']}>Software</span>
-                        <span className='space'> </span>
+                        <span className={styles['title']}> </span>
                         <span ref={toEngineer} className={styles['title']}>Engineer</span>
                     </span>
                 </div>
             </Link>
             {
                 loading &&
-                <div ref={overlay} className={styles['loading-overlay']}>
+                <div ref={overlay} className={classNames(styles['loading-overlay'], { [styles['background-color']]: transitionBackgroundColor })}>
                     <div ref={ctr} className={styles['ctr']}>
-                        {/* Name */}
-                        <Type ref={fromFirstName} content={firstName} speed={speed * 2 / 3} className={styles['name']} wrapperClass={styles['line-wrapper']} />
-                        <Type ref={fromLastName} content={lastName} speed={speed * 2 / 3} delay={delayAfter(firstName, speed)} className={styles['name']} wrapperClass={styles['line-wrapper']} />
+                        {
+                            isBlinking ?
+                                <>
+                                    <span className={classNames(styles['name'], styles['blink'])}>
+                                        |
+                                        <span className={styles['hidden']}>
+                                            {firstName.substring(1)}
+                                        </span>
+                                    </span>
+                                    <span className={classNames(styles['hidden'], styles['name'])}>{lastName}</span>
+                                    <span className={classNames(styles['hidden'], styles['title'])}>{frontEnd}</span>
+                                    <span className={classNames(styles['hidden'], styles['title'])}>{software}</span>
+                                    <span className={classNames(styles['hidden'], styles['title'])}>{engineer}</span>
+                                </> :
+                                <>
+                                    {/* Name */}
+                                    <Type ref={fromFirstName} content={firstName} speed={speed * 2 / 3} className={styles['name']} wrapperClass={styles['line-wrapper']} />
+                                    <Type ref={fromLastName} content={lastName} speed={speed * 2 / 3} delay={delayAfter(firstName, speed)} className={styles['name']} wrapperClass={styles['line-wrapper']} />
 
-                        {/* Title */}
-                        <Type ref={fromFrontEnd} content={frontEnd} speed={speed * 2 / 3} delay={delayAfter(firstName + lastName, speed, titleMod)} className={styles['title']} wrapperClass={styles['line-wrapper']} />
-                        <Type ref={fromSoftware} content={software} speed={speed * 2 / 3} delay={delayAfter(firstName + lastName + frontEnd, speed, titleMod)} className={styles['title']} wrapperClass={styles['line-wrapper']} />
-                        <Type ref={fromEngineer} content={engineer} speed={speed * 2 / 3} delay={delayAfter(firstName + lastName + frontEnd + software, speed, titleMod)} className={styles['title']} wrapperClass={styles['line-wrapper']} />
+                                    {/* Title */}
+                                    <Type ref={fromFrontEnd} content={frontEnd} speed={speed * 2 / 3} delay={delayAfter(firstName + lastName, speed, titleMod)} className={styles['title']} wrapperClass={styles['line-wrapper']} />
+                                    <Type ref={fromSoftware} content={software} speed={speed * 2 / 3} delay={delayAfter(firstName + lastName + frontEnd, speed, titleMod)} className={styles['title']} wrapperClass={styles['line-wrapper']} />
+                                    <Type ref={fromEngineer} content={engineer} speed={speed * 2 / 3} delay={delayAfter(firstName + lastName + frontEnd + software, speed, titleMod)} className={styles['title']} wrapperClass={styles['line-wrapper']} />
+                                </>
+                        }
                     </div>
                 </div>
             }

@@ -3,16 +3,36 @@ import Type from '@/components/type/type';
 import jobs from '@/data/jobs';
 import skills from '@/data/skills';
 import styles from './main.module.scss';
+import { useEffect, useState } from 'react';
+import classNames from 'classnames';
 
-export default function Main({ type, speed }) {
+export default function Main({ type, speed, showLinkBackground, setShowLinkBackground }) {
     const curentYear = new Date().getFullYear();
 
+
+    // TODO: Trigger link background on all animation end (make it the last thing to load)
+    useEffect(() => {
+        const longestLineLength = Math.max(
+            ...jobs
+                .flatMap(({ lines }) => lines)
+                .map(line => line.length)
+        );
+
+        console.log(longestLineLength);
+
+        setTimeout(() => {
+            setShowLinkBackground(true);
+        }, (longestLineLength + 10) * (speed / 4));
+    }, [speed, showLinkBackground, setShowLinkBackground]);
+
     return (
-        <main className={styles['main']}>
+        <main className={classNames(styles['main'], { [styles['link-background']]: showLinkBackground })}>
             {/* Left */}
             <section className={styles['left']}>
                 <div id={styles['experience']}>
-                    <div className={styles['comment']}>{'// Experience'}</div>
+                    <div className={styles['comment']}>
+                        <Type content={'// Experience'} speed={speed / 2} />
+                    </div>
                     {
                         jobs.map(({ title, company, location, start, end, lines }, index) => {
                             return (
@@ -26,9 +46,9 @@ export default function Main({ type, speed }) {
                                         {
                                             type ?
                                                 <>
-                                                    <Type content={`${start} - ${end} `} speed={speed / 2} />
-                                                    <Type content={'| '} speed={speed} className={styles['gray']} />
-                                                    <Type content={location} speed={speed / 2} className={styles['gray']} />
+                                                    <Type content={`${start} - ${end} `} speed={speed / 2} className={styles['date']} />
+                                                    <Type content={'| '} speed={speed} />
+                                                    <Type content={location} speed={speed / 2} />
                                                     <span></span>
                                                 </> :
                                                 <>
@@ -63,7 +83,9 @@ export default function Main({ type, speed }) {
             {/* Right */}
             <section className={styles['right']}>
                 <div id={styles['skills']}>
-                    <div className={styles['comment']}>{'// Skills'}</div>
+                    <div className={styles['comment']}>
+                        <Type content={'// Skills'} speed={speed} />
+                    </div>
                     {
                         skills.map(({ name, started }, index) => {
                             const years = (curentYear - started || 1);
@@ -89,19 +111,19 @@ export default function Main({ type, speed }) {
                 </div>
                 {/* Education */}
                 <div id={styles['education']}>
-                    <div className={styles['comment']}>{'// Education'}</div>
+                    <div className={styles['comment']}>
+                        <Type content={'// Education'} speed={speed / 2} />
+                    </div>
                     <div className={styles['college']}>
-                        <a href="https://www.georgiasouthern.edu/campuses/armstrong-campus/" target="_blank" rel="noreferrer">
-                            <Type content="Armstrong Atlantic State University" speed={speed / 2} />
-                        </a>
+                        <Type content="Armstrong Atlantic State University" speed={speed / 2} />
                     </div>
                     <div className={styles['major']}>
                         {
                             type ?
                                 <>
-                                    <Type content="2006 - 2007 " speed={speed} className={styles['blue']} />
-                                    <Type content={'| '} speed={speed} className={styles['light']} />
-                                    <Type content="Computer Science" speed={speed} className={styles['light']} />
+                                    <Type content="2006 - 2007 " speed={speed} className={styles['date']} />
+                                    <Type content={'| '} speed={speed} />
+                                    <Type content="Computer Science" speed={speed} />
                                     <span></span>
                                 </>
                                 :
@@ -114,26 +136,33 @@ export default function Main({ type, speed }) {
                 </div>
                 {/* Contact */}
                 <div id={styles['contact']}>
-                    <div className={styles['comment']}>{'// Contact'}</div>
+                    <div className={styles['comment']}>
+                        <Type content={'// Contact'} speed={speed / 2} />
+                    </div>
                     <div className={styles['info']}>
-                        <div>
+                        <div className={styles['link-ctr']}>
                             <Link href="tel:9124922522" aria-label="My phone number">
-                                <Type content="📱 (912) 492-2522" speed={speed * 2 / 3} startAtChar={2} />
+                                <span className={styles['emoji']}>📱</span>
+                                <Type content="(912) 492-2522" speed={speed * 2 / 3} className={styles['link-text']} />
                             </Link>
                         </div>
-                        <div>
+                        <div className={styles['link-ctr']}>
                             <Link href="mailto:stephen.a.matheis@gmail.com" aria-label="My email address">
-                                <Type content="📧 stephen.a.matheis@gmail.com" speed={speed / 2} startAtChar={2} />
+                                <span className={styles['emoji']}>📧</span>
+                                <Type content="stephen.a.matheis@gmail.com" speed={speed / 2} className={styles['link-text']} />
                             </Link>
                         </div>
-                        <div>
+                        <div className={styles['link-ctr']}>
+
                             <Link href="https://github.com/stephenmatheis" target="_blank" rel="noreferrer" title='GitHub' aria-label="My GitHub profile">
-                                <Type content="👩‍💻 github.com/stephenmatheis" speed={speed / 2} startAtChar={5} />
+                                <span className={styles['emoji']}>👩‍💻</span>
+                                <Type content="github.com/stephenmatheis" speed={speed / 2} className={styles['link-text']} />
                             </Link>
                         </div>
-                        <div>
+                        <div className={styles['link-ctr']}>
                             <Link href="https://www.linkedin.com/in/stephenmatheis/" target="_blank" rel="noreferrer" title='LinkedIn' aria-label="My LinkedIn profile">
-                                <Type content="💼 linkedin.com/in/stephenmatheis" speed={speed / 2} startAtChar={2} />
+                                <span className={styles['emoji']}>💼</span>
+                                <Type content="linkedin.com/in/stephenmatheis" speed={speed / 2} className={styles['link-text']} />
                             </Link>
                         </div>
                     </div>
